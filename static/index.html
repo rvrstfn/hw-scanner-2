@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Korea Rental – Asset Scanner</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <header>
+        <h1>Korea Rental Asset Scanner</h1>
+        <p>Select your name, scan the QR code and the barcode, then submit.</p>
+      </header>
+
+      <section class="panel">
+        <label class="field">
+          <span>Employee name</span>
+          <select id="employeeSelect">
+            <option value="">Loading...</option>
+          </select>
+        </label>
+
+        <div class="field">
+          <span>Scan status</span>
+          <div id="status" class="status status--idle">Camera idle</div>
+        </div>
+
+        <div class="video-wrapper">
+          <video id="preview" playsinline muted></video>
+        </div>
+
+        <div class="buttons">
+          <button id="startBtn" type="button">Start camera</button>
+          <button id="stopBtn" type="button" disabled>Stop camera</button>
+        </div>
+
+        <div class="results">
+          <div>
+            <h2>QR code</h2>
+            <p id="qrResult" class="result">–</p>
+          </div>
+          <div>
+            <h2>Barcode</h2>
+            <p id="barcodeResult" class="result">–</p>
+          </div>
+        </div>
+
+        <button id="submitBtn" type="button" class="submit" disabled>Submit scan</button>
+      </section>
+
+      <section class="panel panel--secondary">
+        <h2>Tips</h2>
+        <ul>
+          <li>Hold the label steady and fill the frame with one code at a time.</li>
+          <li>The camera keeps running until you stop it or submit.</li>
+          <li>If a code is misread, stop and start again to clear the values.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script type="module" src="/static/app.js"></script>
+  </body>
+</html>

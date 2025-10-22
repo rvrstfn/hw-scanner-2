@@ -1,0 +1,143 @@
+.layout {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1e1e1e;
+  background: #f6f6f6;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+header {
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.2rem;
+}
+
+.panel {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  margin-bottom: 1rem;
+}
+
+.panel--secondary {
+  background: #fffdf5;
+  border: 1px solid #ffe8a3;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+select,
+button {
+  font: inherit;
+}
+
+select {
+  border: 1px solid #d0d5dd;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.video-wrapper {
+  background: #0f172a;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin: 1rem 0;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.status {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #e2e8f0;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status--success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status--error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+button {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #1d4ed8;
+  color: white;
+  transition: transform 0.15s ease;
+}
+
+button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.submit {
+  width: 100%;
+  margin-top: 1rem;
+  background: #059669;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.result {
+  min-height: 3.5rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  word-break: break-word;
+  border: 1px solid #e2e8f0;
+}
+
+ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+}
+
+@media (max-width: 640px) {
+  .layout {
+    padding: 1rem;
+  }
+}
