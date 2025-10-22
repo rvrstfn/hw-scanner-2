@@ -81,7 +81,7 @@ async function startCamera() {
   stopBtn.disabled = false;
 
   try {
-    const devices = await reader.listVideoInputDevices();
+    const devices = await BrowserMultiFormatReader.listVideoInputDevices();
     const preferredDevice =
       devices.find((device) => device.label.toLowerCase().includes("back")) ||
       devices[0];
