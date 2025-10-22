@@ -8,29 +8,26 @@ const formats = ["qr_code", "code_128", "code_39", "data_matrix"];
 
 export const onRequestPost = async ({ request }) => {
   try {
+    setZXingModuleOverrides({
+      locateFile(path) {
+        if (path.endsWith(".wasm")) {
+          return new URL(`/vendor/zxing/${path}`, request.url).href;
+        }
+        return path;
+      },
+    });
+
     const form = await request.formData();
     const file = form.get("image");
     if (!file || typeof file.arrayBuffer !== "function") {
       return jsonResponse({ error: "Missing image upload" }, 400);
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    if (!arrayBuffer || arrayBuffer.byteLength === 0) {
-      return jsonResponse({ error: "Empty image" }, 400);
-    }
-
-    setZXingModuleOverrides({
-      locateFile: (path) => new URL(`/vendor/${path}`, request.url).toString(),
+    const results = await readBarcodesFromImageFile(file, {
+      ...defaultZXingReadOptions,
+      tryHarder: true,
+      formats,
     });
-
-    const results = await readBarcodesFromImageFile(
-      new Uint8Array(arrayBuffer),
-      {
-        ...defaultZXingReadOptions,
-        tryHarder: true,
-        formats,
-      }
-    );
 
     const decoded = (results || []).map((item) => ({
       format: item.format,
