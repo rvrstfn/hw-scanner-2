@@ -1,7 +1,7 @@
 import {
   readBarcodesFromImageFile,
   defaultZXingReadOptions,
-} from "@sec-ant/zxing-wasm/dist/full/index.js";
+} from "@sec-ant/zxing-wasm";
 
 const formats = ["qr_code", "code_128", "code_39", "data_matrix"];
 
