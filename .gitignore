@@ -207,6 +207,8 @@ marimo/_lsp/
 __marimo__/
 
 # Project-specific artifacts
+/.wrangler/
+/node_modules/
 /.config/
 data/inventory.db
 scan-export.csv
