@@ -1,6 +1,7 @@
 import {
   readBarcodesFromImageFile,
   defaultZXingReadOptions,
+  setZXingModuleOverrides,
 } from "@sec-ant/zxing-wasm";
 
 const formats = ["qr_code", "code_128", "code_39", "data_matrix"];
@@ -17,6 +18,10 @@ export const onRequestPost = async ({ request }) => {
     if (!arrayBuffer || arrayBuffer.byteLength === 0) {
       return jsonResponse({ error: "Empty image" }, 400);
     }
+
+    setZXingModuleOverrides({
+      locateFile: (path) => new URL(`/vendor/${path}`, request.url).toString(),
+    });
 
     const results = await readBarcodesFromImageFile(
       new Uint8Array(arrayBuffer),
