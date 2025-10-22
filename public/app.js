@@ -1,32 +1,16 @@
-import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.4/+esm";
-import {
-  BarcodeFormat,
-  DecodeHintType,
-} from "https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/+esm";
-
 const employeeSelect = document.getElementById("employeeSelect");
 const statusEl = document.getElementById("status");
 const qrResultEl = document.getElementById("qrResult");
 const barcodeResultEl = document.getElementById("barcodeResult");
-const startBtn = document.getElementById("startBtn");
-const stopBtn = document.getElementById("stopBtn");
+const imageInput = document.getElementById("imageInput");
+const imagePreviewWrapper = document.getElementById("imagePreviewWrapper");
+const imagePreview = document.getElementById("imagePreview");
+const decodeBtn = document.getElementById("decodeBtn");
 const submitBtn = document.getElementById("submitBtn");
-const videoElement = document.getElementById("preview");
-
-const hints = new Map();
-hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-  BarcodeFormat.QR_CODE,
-  BarcodeFormat.CODE_128,
-  BarcodeFormat.CODE_39,
-  BarcodeFormat.DATA_MATRIX,
-]);
-const reader = new BrowserMultiFormatReader();
-reader.setHints(hints);
 
 let qrData = null;
 let barcodeData = null;
-let cameraActive = false;
-let videoControls = null;
+let selectedFile = null;
 
 async function loadEmployees() {
   try {
@@ -66,101 +50,84 @@ function resetResults() {
   submitBtn.disabled = true;
 }
 
-async function startCamera() {
-  if (cameraActive) {
-    return;
-  }
-  if (!employeeSelect.value) {
-    setStatus("error", "Pick your name before scanning.");
+function handleFileSelection(file) {
+  selectedFile = file;
+  resetResults();
+  if (!file) {
+    imagePreviewWrapper.hidden = true;
+    setStatus("idle", "No image selected");
     return;
   }
 
-  resetResults();
-  setStatus("idle", "Starting camera…");
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
+  const reader = new FileReader();
+  reader.onload = () => {
+    imagePreview.src = reader.result;
+    imagePreviewWrapper.hidden = false;
+  };
+  reader.readAsDataURL(file);
+  setStatus("idle", "Image ready. Tap decode to process.");
+}
+
+async function decodeImage() {
+  if (!employeeSelect.value) {
+    setStatus("error", "Pick your name before decoding.");
+    return;
+  }
+  if (!selectedFile) {
+    setStatus("error", "Upload a label photo first.");
+    return;
+  }
 
   try {
-    const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-    const preferredDevice =
-      devices.find((device) => device.label.toLowerCase().includes("back")) ||
-      devices[0];
+    decodeBtn.disabled = true;
+    setStatus("idle", "Decoding…");
+    const formData = new FormData();
+    formData.append("image", selectedFile);
 
-    if (!preferredDevice) {
-      throw new Error("No camera found");
+    const response = await fetch("/api/decode", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Decode failed (${response.status})`);
+    }
+    const { decoded } = await response.json();
+
+    if (!decoded || decoded.length === 0) {
+      setStatus("error", "No codes detected. Try a clearer photo.");
+      return;
     }
 
-    cameraActive = true;
-    reader
-      .decodeFromVideoDevice(
-        preferredDevice.deviceId,
-        videoElement,
-        (result, error, controls) => {
-          if (controls) {
-            videoControls = controls;
-          }
-          if (error) {
-            return;
-          }
-          if (!result) {
-            return;
-          }
-
-          const format = result.getBarcodeFormat();
-          const text = result.getText();
-
-          if (format === BarcodeFormat.QR_CODE) {
-            qrData = text;
-            qrResultEl.textContent = text;
-          } else {
-            barcodeData = text;
-            barcodeResultEl.textContent = text;
-          }
-
-          if (qrData || barcodeData) {
-            setStatus("success", "Code captured. Scan other code or submit.");
-          }
-
-          if (qrData && barcodeData) {
-            setStatus("success", "Both codes captured. Ready to submit.");
-            submitBtn.disabled = false;
-          }
-        }
-      )
-      .then(() => {
-        /* Promise resolves when the stream stops; nothing to do here. */
-      })
-      .catch((error) => {
-        console.error(error);
-        setStatus("error", error.message || "Could not start camera");
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        cameraActive = false;
-      });
-    setStatus("idle", "Camera active. Aim at the code.");
+    updateResults(decoded);
   } catch (error) {
-    console.error(error);
-    setStatus("error", error.message || "Could not start camera");
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    cameraActive = false;
+    console.error("Decode failed", error);
+    setStatus("error", "Decode failed. Try again.");
+  } finally {
+    decodeBtn.disabled = false;
   }
 }
 
-function stopCamera() {
-  if (!cameraActive) {
-    return;
+function updateResults(results) {
+  resetResults();
+  for (const item of results) {
+    const format = (item.format || "").toUpperCase();
+    const text = item.text || "";
+    if (format.includes("QR")) {
+      qrData = qrData || text;
+      qrResultEl.textContent = qrData;
+    } else {
+      barcodeData = barcodeData || text;
+      barcodeResultEl.textContent = barcodeData;
+    }
   }
-  if (videoControls) {
-    videoControls.stop();
-    videoControls = null;
+
+  if (qrData || barcodeData) {
+    setStatus("success", "Codes decoded. Submit to store the scan.");
+    submitBtn.disabled = false;
+  } else {
+    setStatus("error", "Could not classify codes. Try retaking the photo.");
   }
-  reader.reset();
-  cameraActive = false;
-  videoElement.srcObject = null;
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
-  setStatus("idle", "Camera stopped.");
 }
 
 async function submitScan() {
@@ -169,7 +136,7 @@ async function submitScan() {
     return;
   }
   if (!qrData && !barcodeData) {
-    setStatus("error", "Scan at least one code before submitting.");
+    setStatus("error", "Decode the image before submitting.");
     return;
   }
 
@@ -190,8 +157,8 @@ async function submitScan() {
     }
     await response.json();
     setStatus("success", "Scan saved. Thank you!");
-    stopCamera();
-    resetResults();
+    handleFileSelection(null);
+    imageInput.value = "";
   } catch (error) {
     console.error("Failed to submit", error);
     setStatus("error", "Could not submit scan. Try again.");
@@ -199,12 +166,12 @@ async function submitScan() {
   }
 }
 
-startBtn.addEventListener("click", startCamera);
-stopBtn.addEventListener("click", stopCamera);
-submitBtn.addEventListener("click", submitScan);
-
-window.addEventListener("beforeunload", () => {
-  stopCamera();
+imageInput.addEventListener("change", (event) => {
+  const file = event.target.files?.[0] || null;
+  handleFileSelection(file);
 });
+
+decodeBtn.addEventListener("click", decodeImage);
+submitBtn.addEventListener("click", submitScan);
 
 loadEmployees();

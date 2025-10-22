@@ -1,0 +1,23 @@
+{
+  "name": "korearental-reader",
+  "version": "1.0.0",
+  "description": "Simple inventory tool that lets employees select their name, scan the rental label (QR code + barcode), and store the results for later review. The web UI runs entirely in the browser, while the API is implemented as Cloudflare Pages Functions backed by a D1 database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvrstfn/hw-scanner-2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rvrstfn/hw-scanner-2/issues"
+  },
+  "homepage": "https://github.com/rvrstfn/hw-scanner-2#readme",
+  "dependencies": {
+    "@sec-ant/zxing-wasm": "^2.2.0"
+  }
+}

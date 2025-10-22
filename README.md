@@ -11,13 +11,14 @@ pip install pillow  # only needed for zbarimg fallback scripts
 python server.py
 ```
 
-Open <http://localhost:8000> on a phone or computer. Select your name, press **Start camera**, and aim at the QR code or the barcode. Once both are captured, press **Submit scan** to write the record to SQLite (`data/inventory.db`).
+Open <http://localhost:8000> on a phone or computer. Select your name, take a clear photo of the asset label, press **Decode image**, then **Submit scan** to write the record to SQLite (`data/inventory.db`).
 
 ## Cloudflare Pages deployment
 
 This repo is ready for Cloudflare Pages:
 
 1. Ensure `wrangler` is logged in (`wrangler whoami`).
+2. Install JS dependencies locally: `npm install`.
 2. Create/apply database migrations locally:
    ```bash
    wrangler d1 migrations apply hw-scanner-inventory --local

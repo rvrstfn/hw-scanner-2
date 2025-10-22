@@ -23,16 +23,20 @@
 
         <div class="field">
           <span>Scan status</span>
-          <div id="status" class="status status--idle">Camera idle</div>
+          <div id="status" class="status status--idle">No image selected</div>
         </div>
 
-        <div class="video-wrapper">
-          <video id="preview" playsinline muted></video>
+        <label class="field">
+          <span>Upload label photo</span>
+          <input id="imageInput" type="file" accept="image/*" capture="environment" />
+        </label>
+
+        <div class="image-preview" id="imagePreviewWrapper" hidden>
+          <img id="imagePreview" alt="Label preview" />
         </div>
 
         <div class="buttons">
-          <button id="startBtn" type="button">Start camera</button>
-          <button id="stopBtn" type="button" disabled>Stop camera</button>
+          <button id="decodeBtn" type="button">Decode image</button>
         </div>
 
         <div class="results">
