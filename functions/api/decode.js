@@ -1,6 +1,7 @@
-import ZXing from "@sec-ant/zxing-wasm";
-
-let zxingPromise = null;
+import {
+  readBarcodesFromImageFile,
+  defaultZXingReadOptions,
+} from "@sec-ant/zxing-wasm/dist/full/index.js";
 
 const formats = ["qr_code", "code_128", "code_39", "data_matrix"];
 
@@ -17,15 +18,14 @@ export const onRequestPost = async ({ request }) => {
       return jsonResponse({ error: "Empty image" }, 400);
     }
 
-    if (!zxingPromise) {
-      zxingPromise = ZXing();
-    }
-    const zxing = await zxingPromise;
-
-    const results = zxing.readBarcodesFromImage(new Uint8Array(arrayBuffer), {
-      tryHarder: true,
-      formats,
-    });
+    const results = await readBarcodesFromImageFile(
+      new Uint8Array(arrayBuffer),
+      {
+        ...defaultZXingReadOptions,
+        tryHarder: true,
+        formats,
+      }
+    );
 
     const decoded = (results || []).map((item) => ({
       format: item.format,
