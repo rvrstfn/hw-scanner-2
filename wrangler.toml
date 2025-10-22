@@ -1,0 +1,11 @@
+name = "hw-scanner-2"
+pages_build_output_dir = "./public"
+compatibility_date = "2024-10-22"
+
+[vars]
+APP_VERSION = "1"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hw-scanner-inventory"
+database_id = "b5a9c6e6-b670-44a0-9ded-f778775a5981"

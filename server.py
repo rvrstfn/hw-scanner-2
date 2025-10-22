@@ -18,7 +18,7 @@ from urllib.parse import parse_qs
 from wsgiref.simple_server import make_server
 
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
+PUBLIC_DIR = BASE_DIR / "public"
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "inventory.db"
 EMPLOYEE_FILE = DATA_DIR / "employees.json"
@@ -161,20 +161,11 @@ def application(environ, start_response):
     method = environ.get("REQUEST_METHOD", "GET").upper()
 
     if path == "/" and method == "GET":
-        return serve_file(start_response, STATIC_DIR / "index.html")
+        return serve_file(start_response, PUBLIC_DIR / "index.html")
 
     if path == "/favicon.ico" and method == "GET":
         start_response("204 No Content", [("Cache-Control", "no-store")])
         return [b""]
-
-    if path.startswith("/static/") and method == "GET":
-        rel_path = path[len("/static/") :]
-        target = (STATIC_DIR / rel_path).resolve()
-        # Avoid escaping the static directory
-        if not str(target).startswith(str(STATIC_DIR.resolve())):
-            start_response("403 Forbidden", [])
-            return [b"Forbidden"]
-        return serve_file(start_response, target)
 
     if path == "/api/users" and method == "GET":
         employees = load_employees()
@@ -185,6 +176,12 @@ def application(environ, start_response):
 
     if path == "/api/scans" and method == "GET":
         return handle_scan_list(start_response, environ)
+
+    if path.startswith("/") and method == "GET":
+        target = (PUBLIC_DIR / path.lstrip("/")).resolve()
+        base = PUBLIC_DIR.resolve()
+        if target.exists() and str(target).startswith(str(base)):
+            return serve_file(start_response, target)
 
     start_response("404 Not Found", [("Content-Type", "text/plain")])
     return [b"Not Found"]

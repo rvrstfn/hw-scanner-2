@@ -1,8 +1,8 @@
 # Korea Rental Asset Scanner
 
-Simple inventory tool that lets employees select their name, scan the rental label (QR code + barcode), and stores the results for later review.
+Simple inventory tool that lets employees select their name, scan the rental label (QR code + barcode), and store the results for later review. The web UI runs entirely in the browser, while the API is implemented as Cloudflare Pages Functions backed by a D1 database.
 
-## Quick start
+## Local preview
 
 ```bash
 python3 -m venv .venv
@@ -12,6 +12,27 @@ python server.py
 ```
 
 Open <http://localhost:8000> on a phone or computer. Select your name, press **Start camera**, and aim at the QR code or the barcode. Once both are captured, press **Submit scan** to write the record to SQLite (`data/inventory.db`).
+
+## Cloudflare Pages deployment
+
+This repo is ready for Cloudflare Pages:
+
+1. Ensure `wrangler` is logged in (`wrangler whoami`).
+2. Create/apply database migrations locally:
+   ```bash
+   wrangler d1 migrations apply hw-scanner-inventory --local
+   wrangler d1 migrations apply hw-scanner-inventory
+   ```
+3. Run a preview:
+   ```bash
+   wrangler pages dev public --d1=DB=hw-scanner-inventory
+   ```
+4. Deploy:
+   ```bash
+   wrangler pages deploy public
+   ```
+
+`wrangler.toml` already binds the D1 database as `env.DB`. Pages Functions are under `functions/api/*`.
 
 ## Dependencies
 
